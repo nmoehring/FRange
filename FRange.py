@@ -33,7 +33,6 @@ class FRange:
             
     def intersect(self, float_range):
         ''' Keeps the range of the object that coincides with argument range'''
-        #pdb.set_trace()
         rg_arg = self._get_std_arg(float_range)
         idxs_to_keep = []
         for rg in rg_arg:
@@ -57,25 +56,61 @@ class FRange:
             
     def _get_std_arg(self,float_range):
         ''' Creates a list of lists or tuples, if necessary '''
+        # Prioritizing input in interval notation
+        if type(float_range) == str:
+            if self._isValidStr(float_range):
+                return self._convertStr([float_range]) 
+            else: 
+                raise TypeError("Incorrect range format")
+                
+        #For catching problems with input or identifying the format of the input
         not_iters = True
         value_spotted = False
+        all_strings = True
+        valid_strings = True
+        
         for element in float_range:
             if type(element) in (list,tuple):
                 not_iters = False
                 if value_spotted:
-                    throw(TypeError("Incorrect range format."))
+                    raise TypeError("Incorrect range format.")
+                all_strings = False
+            elif type(element) == str:
+                if not self._isValidStr(element):
+                    valid_strings = False
             else:
                 value_spotted = True
                 if not_iters == False:
-                    throw(TypeError("Incorrect range format."))
+                    raise TypeError("Incorrect range format.")
+                all_strings = False
         if not_iters:
             return [float_range]
+        elif all_strings:
+            if not valid_strings:
+                raise TypeError("Incorrect range format.")
+            else:
+                return self._convertStr(float_range)
         else:
             return float_range
+        
+    def _convertStr(self, float_range):
+        '''Convert string argument to standard FRange format'''
+        std_list = []
+        for element in float_range:
+            brackets = element[0] + element[-1]
+            split_str = element.split(",")
+            std_list.append(([int(split_str[0][1:])] + [int(split_str[1][:-1])] + [brackets]))
+        return std_list
+    
+    def _isValidStr(self, range_str):
+        '''Check if string has valid range format'''
+        if range_str[0] not in ["(","["] or range_str[-1] not in [")","]"] or range_str.find(",") == -1:
+            return False
+        else:
+            return True
     
     def _compound(self):
         ''' Combines ranges belonging to the object, when possible '''
-        #pdb.set_trace()
         idxs_to_remove = []
         for i in range(len(self._rg)-1):
             for j in range(i+1,len(self._rg)):
