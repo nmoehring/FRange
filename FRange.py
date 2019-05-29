@@ -40,9 +40,9 @@ class FRange:
             idxs_to_keep += list(range(idxs[0],idxs[-1]+1))
             if len(idxs) > 2: idxs = [idxs[0],idxs[-1]]
             if len(idxs) != 0:
-                self._rg[idxs[0]] = self._get_smallest_intersection(self._rg[idxs[0]], rg)
+                self._rg[idxs[0]] = self._get_intersection(self._rg[idxs[0]], rg)
                 if len(idxs) == 2:
-                    self._rg[idxs[1]] = self._get_smallest_intersection(self._rg[idxs[1]], rg)
+                    self._rg[idxs[1]] = self._get_intersection(self._rg[idxs[1]], rg)
         for i in reversed(range(len(self._rg))):
            if i not in idxs_to_keep: self._rg.pop(i) 
         self._cleanup()
@@ -163,7 +163,7 @@ class FRange:
             self._rg.pop(idx)
         self._rg.sort(key=lambda x : x[0])
             
-    def _get_smallest_intersection(self, old_rg, rg):
+    def _get_intersection(self, old_rg, rg):
         ''' Used in intersect method '''
         new_rg = [None,None,""]
         if old_rg[0] > rg[0]:
