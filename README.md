@@ -6,9 +6,9 @@ track the domains of functions.
  ### Argument Form  
 Arguments for init, union, and intersect are in the form of iterables of iterables, which is how ranges are stored internally, and look like this:  
 ```>>> rg = FRange([ [1,2,'(]'], [3,4,'[)'] ]) ```  
-but can also input ranges in interval notation in a string, like this:   
+but you can also input ranges in interval notation in a string, like this:   
 ```>>> rg.union(["(1,2]", "[3,4)"]) ```  
-The brackets work the way they do in interval notation, () not including the edge values, and [] including the edge values.  
+The brackets work the way they do in interval notation, ```()``` not including the edge values, and ```[]``` including the edge values.  
 
  ### Methods  
 The __value()__ method returns the range in a string, with discontinuous ranges being combined with a union character:  
