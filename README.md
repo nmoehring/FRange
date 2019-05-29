@@ -9,5 +9,7 @@ Arguments for init, union, and intersect are in the form of iterables of iterabl
 but can also input ranges in interval notation in a string, like this:   
 ``` rg.union(["(1,2]", "[3,4)"]) ```
 
- __Other Features__  
+ __Methods__  
+The value() method displays the range, with discontinuous ranges being combined with a union character:  
+``` (1,2]∪[3,4) ```  
 The class also has a rand() method which returns a random number within the object's range, and will eventually have a generator, as well.
