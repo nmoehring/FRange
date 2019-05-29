@@ -26,35 +26,35 @@ class FRange:
     def union(self, float_range):
         ''' Adds the range in the argument to the ranges in the object
          Joins ranges that are touching or overlapping '''
-        rg_arg = self._get_std_arg(float_range)
+        rg_arg = self._getStdArg(float_range)
         for rg in rg_arg:
             self._rg.append(rg)
         self._cleanup()
             
     def intersect(self, float_range):
         ''' Keeps the range of the object that coincides with argument range'''
-        rg_arg = self._get_std_arg(float_range)
+        rg_arg = self._getStdArg(float_range)
         idxs_to_keep = []
         for rg in rg_arg:
-            idxs = self._check_intersections(rg)
+            idxs = self._checkIntersections(rg)
             idxs_to_keep += list(range(idxs[0],idxs[-1]+1))
             if len(idxs) > 2: idxs = [idxs[0],idxs[-1]]
             if len(idxs) != 0:
-                self._rg[idxs[0]] = self._get_intersection(self._rg[idxs[0]], rg)
+                self._rg[idxs[0]] = self._getIntersection(self._rg[idxs[0]], rg)
                 if len(idxs) == 2:
-                    self._rg[idxs[1]] = self._get_intersection(self._rg[idxs[1]], rg)
+                    self._rg[idxs[1]] = self._getIntersection(self._rg[idxs[1]], rg)
         for i in reversed(range(len(self._rg))):
            if i not in idxs_to_keep: self._rg.pop(i) 
         self._cleanup()
                
-    def _check_intersections(self, limits):
+    def _checkIntersections(self, limits):
         ''' Checks if the range in the argument intersects a range in the object'''
         return [i for i in range(len(self._rg)) if 
              self._rg[i][0] <= limits[0] <= self._rg[i][1] or
              self._rg[i][0] <= limits[1] <= self._rg[i][1] or
              (limits[0] < self._rg[i][0] and limits[1] > self._rg[i][1])]
             
-    def _get_std_arg(self,float_range):
+    def _getStdArg(self,float_range):
         ''' Creates a list of lists or tuples, if necessary '''
         # Prioritizing input in interval notation
         if type(float_range) == str:
@@ -163,7 +163,7 @@ class FRange:
             self._rg.pop(idx)
         self._rg.sort(key=lambda x : x[0])
             
-    def _get_intersection(self, old_rg, rg):
+    def _getIntersection(self, old_rg, rg):
         ''' Used in intersect method '''
         new_rg = [None,None,""]
         if old_rg[0] > rg[0]:
