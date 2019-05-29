@@ -29,7 +29,7 @@ class FRange:
         rg_arg = self._get_std_arg(float_range)
         for rg in rg_arg:
             self._rg.append(rg)
-        self._compound()
+        self._cleanup()
             
     def intersect(self, float_range):
         ''' Keeps the range of the object that coincides with argument range'''
@@ -45,7 +45,7 @@ class FRange:
                     self._rg[idxs[1]] = self._get_smallest_intersection(self._rg[idxs[1]], rg)
         for i in reversed(range(len(self._rg))):
            if i not in idxs_to_keep: self._rg.pop(i) 
-        self._compound()
+        self._cleanup()
                
     def _check_intersections(self, limits):
         ''' Checks if the range in the argument intersects a range in the object'''
@@ -109,7 +109,7 @@ class FRange:
         else:
             return True
     
-    def _compound(self):
+    def _cleanup(self):
         ''' Combines ranges belonging to the object, when possible '''
         idxs_to_remove = []
         for i in range(len(self._rg)-1):
