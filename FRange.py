@@ -16,19 +16,30 @@ Has a rand() method which returns a random number within the object's range.
 
 import pdb
 from random import random
+import sympy
+import math
+t = sympy.symbol.symbols("t")
 
 class FRange:
     def __init__(self, float_range, step=0.5):
         self._step = step
         self._rg = []
-        self.union(float_range)
+        if type(float_range) in (sympy.LessThan, sympy.StrictLessThan,\
+               sympy.And, sympy.Or):
+            self._rg += self.fromSympy(float_range)
+        else:
+            self.union(float_range)
         
     def union(self, float_range):
         ''' Adds the range in the argument to the ranges in the object
          Joins ranges that are touching or overlapping '''
-        rg_arg = self._getStdArg(float_range)
-        for rg in rg_arg:
-            self._rg.append(rg)
+        if type(float_range) in (sympy.LessThan, sympy.StrictLessThan,\
+               symply.And, sympy.Or):
+            self._rg += self.fromSympy(float_range)
+        else: 
+            rg_arg = self._getStdArg(float_range)
+            for rg in rg_arg:
+                self._rg.append(rg)
         self._cleanup()
             
     def intersect(self, float_range):
@@ -185,6 +196,63 @@ class FRange:
         else:
             new_rg[1] = rg[1]
             new_rg[2] += rg[2][1]
+        return new_rg
+    
+    def toSympy(self):
+        '''Convert the range to sympy inequalities in a format ready for 
+              use with reduce_rational_inequalities()'''
+        sym_expr = []
+        for rg in self._rg:
+            if rg[0] == -math.inf:
+                if rg[2][1] == ')':
+                    sym_expr.append([t < rg[1]])
+                elif rg[1] == math.inf:
+                    sym_expr.append([t<0])
+                    sym_expr.append([t>=0])
+                else:
+                    sym_expr.append([t <= rg[1]])
+            elif rg[1] == math.inf:
+                if rg[2][0] == '(':
+                    sym_expr.append([t > rg[0]])
+                else:
+                    sym_expr.append([t >= rg[0]])
+            else:
+                sym_expr.append([rg[0]<x] if rg[2][0]=='(' else [rg[0]<=x])
+                sym_expr.append([x<rg[1]] if rg[2][1]==')' else [x<=rg[1]])
+        return sym_expr
+    
+    def fromSympy(self, sym_ineq):
+        work_var = [sym_ineq]
+        new_rg = []
+        while len(work_var) != 0:
+            temp = []
+            for item in work_var:
+                if type(item) == sympy.Or:
+                    temp.append(item.args)
+                elif type(item) == sympy.And:
+                    args = item.args
+                    rg = []
+                    brackets = ''
+                    if type(args[0]) == sympy.LessThan:
+                        brackets += '['
+                    elif type(args[0] == sympy.StrictLessThan):
+                        brackets += '('
+                    if type(args[1]) == sympy.LessThan:
+                        brackets += ']'
+                    elif type(args[1]) == sympy.StrictLessThan:
+                        brackets += ')'
+                    rg.append(args[0].args[0])
+                    rg.append(args[1].args[1])
+                    rg.append(brackets)
+                    new_rg.append(rg)
+            work_var = temp
+        for i in range(len(new_rg)):
+            for j in range(2):
+                if type(new_rg[i][j]) == sympy.numbers.Infinity:
+                    new_rg[i][j] = math.inf
+                elif type(new_rg[i][j]) == sympy.numbers.NegativeInfinity:
+                    new_rg[i][j] = -math.inf
+            
         return new_rg
     
     def value(self):
