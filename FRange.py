@@ -221,7 +221,7 @@ class FRange:
                 sym_expr.append([x<rg[1]] if rg[2][1]==')' else [x<=rg[1]])
         return sym_expr
     
-    def fromSympy(self, sym_ineq):
+    def _fromSympy(self, sym_ineq):
         work_var = [sym_ineq]
         new_rg = []
         while len(work_var) != 0:
