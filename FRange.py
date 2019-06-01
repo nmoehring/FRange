@@ -34,7 +34,7 @@ class FRange:
         ''' Adds the range in the argument to the ranges in the object
          Joins ranges that are touching or overlapping '''
         if type(float_range) in (sympy.LessThan, sympy.StrictLessThan,\
-               symply.And, sympy.Or):
+               sympy.And, sympy.Or):
             self._rg += self.fromSympy(float_range)
         else: 
             rg_arg = self._getStdArg(float_range)
@@ -89,18 +89,19 @@ class FRange:
             elif type(element) == str:
                 if not self._isValidStr(element):
                     valid_strings = False
+                    value_spotted = True
             else:
                 value_spotted = True
                 if not_iters == False:
                     raise TypeError("Incorrect range format.")
                 all_strings = False
-        if not_iters:
-            return [float_range]
-        elif all_strings:
+        if all_strings:
             if not valid_strings:
                 raise TypeError("Incorrect range format.")
             else:
                 return self._convertStr(float_range)
+        elif not_iters:
+            return [float_range]
         else:
             return float_range
         
@@ -198,27 +199,27 @@ class FRange:
             new_rg[2] += rg[2][1]
         return new_rg
     
-    def toSympy(self):
+    def toSympy(self, symb):
         '''Convert the range to sympy inequalities in a format ready for 
               use with reduce_rational_inequalities()'''
         sym_expr = []
         for rg in self._rg:
             if rg[0] == -math.inf:
                 if rg[2][1] == ')':
-                    sym_expr.append([t < rg[1]])
+                    sym_expr.append(symb < rg[1])
                 elif rg[1] == math.inf:
-                    sym_expr.append([t<0])
-                    sym_expr.append([t>=0])
+                    sym_expr.append(symb < 0)
+                    sym_expr.append(0 <= symb)
                 else:
-                    sym_expr.append([t <= rg[1]])
+                    sym_expr.append(symb <= rg[1])
             elif rg[1] == math.inf:
                 if rg[2][0] == '(':
-                    sym_expr.append([t > rg[0]])
+                    sym_expr.append(rg[0] < symb)
                 else:
-                    sym_expr.append([t >= rg[0]])
+                    sym_expr.append(rg[0] <= symb)
             else:
-                sym_expr.append([rg[0]<x] if rg[2][0]=='(' else [rg[0]<=x])
-                sym_expr.append([x<rg[1]] if rg[2][1]==')' else [x<=rg[1]])
+                sym_expr.append(rg[0]<symb if rg[2][0]=='(' else rg[0]<=symb)
+                sym_expr.append(symb<rg[1] if rg[2][1]==')' else symb<=rg[1])
         return sym_expr
     
     def _fromSympy(self, sym_ineq):
